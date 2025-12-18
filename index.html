@@ -3,73 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>राधा जप</title>
+<title>राधा नाम जप</title>
 
 <style>
 body{
   margin:0;
   font-family:system-ui;
-  background:#FFF4E6;
-}
-
-/* TOP BAR */
-.top{
-  background:#F4A261;
-  padding:12px;
+  background:#ffffff;
   text-align:center;
-  font-size:26px;
-  font-weight:800;
-  color:#5A2A00;
+  user-select:none;
 }
 
-/* BIG RADHA BOX */
-.main-radha{
-  margin:12px;
-  background:#FFD2A6;
-  border-radius:14px;
-  text-align:center;
-  font-size:34px;
-  font-weight:900;
-  padding:18px;
-  color:#5A2A00;
+h1{
+  color:#ff7a00;
+  margin-top:20px;
 }
 
-/* STATS */
-.stats{
+/* TIMER */
+.timer{
+  margin:10px auto;
+  display:inline-block;
+  padding:6px 14px;
+  border-radius:20px;
+  background:#f1f1f1;
+  font-weight:600;
+}
+
+/* NO ADS */
+.noads{
+  margin-top:8px;
+  display:inline-block;
+  padding:6px 14px;
+  border-radius:20px;
+  background:#dff5e1;
+  color:#1b7a3a;
+  font-weight:600;
+}
+
+/* FULL TAP AREA */
+.tap-area{
+  min-height:100vh;
+}
+
+/* CIRCLE */
+.circle{
+  width:220px;
+  height:220px;
+  margin:30px auto;
+  border-radius:50%;
+  background:conic-gradient(#ff7a00 0deg,#e6e6e6 0deg);
   display:flex;
-  gap:10px;
-  padding:0 12px;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none; /* allow full screen tap */
+}
+
+.inner{
+  width:170px;
+  height:170px;
+  background:#fff;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:42px;
+  font-weight:800;
+}
+
+/* CARDS */
+.cards{
+  display:flex;
+  justify-content:center;
+  gap:12px;
 }
 
 .card{
-  flex:1;
-  background:#FFD2A6;
+  width:110px;
+  padding:12px;
   border-radius:14px;
-  padding:10px;
-  text-align:center;
-  color:#5A2A00;
-  font-weight:700;
+  background:#fff4e6;
+  border:1px solid #ffd2a6;
 }
 
 .card b{
-  font-size:22px;
+  display:block;
+  margin-top:4px;
+  font-size:18px;
 }
 
-/* TAP AREA */
-.tap-area{
-  margin-top:10px;
-  background:white;
-  height:calc(100vh - 300px);
-  position:relative;
-  overflow:hidden;
-}
-
-/* FLOATING RADHA */
+/* FLOAT RADHA */
 .float{
   position:absolute;
   font-size:26px;
   font-weight:800;
-  color:#F4A261;
+  color:#ff7a00;
   animation:up 1.2s ease-out forwards;
   pointer-events:none;
 }
@@ -84,49 +111,96 @@ body{
 
 <body>
 
-<div class="top">श्री जी नाम जप</div>
+<div class="tap-area" id="tapArea">
 
-<div class="main-radha">राधा</div>
+<h1>राधा नाम जप</h1>
 
-<div class="stats">
-  <div class="card">आज की गणना<br><b id="today">0</b></div>
-  <div class="card">आजिवन गिनती<br><b id="total">0</b></div>
+<div class="timer" id="timer">⏱️ 00:00:00</div><br>
+<div class="noads">✅ No Ads</div>
+
+<div class="circle">
+  <div class="inner" id="count">0</div>
 </div>
 
-<div class="tap-area" id="tap"></div>
+<div class="cards">
+  <div class="card">Malas<b id="malas">0</b></div>
+  <div class="card">Total Japa<b id="total">0</b></div>
+  <div class="card">Today's Japa<b id="today">0</b></div>
+</div>
+
+</div>
 
 <script>
-let today = Number(localStorage.getItem("today")||0);
-let total = Number(localStorage.getItem("total")||0);
+const MALA=108;
+let today=Number(localStorage.getItem("today")||0);
+let total=Number(localStorage.getItem("total")||0);
+let start=Number(localStorage.getItem("start")||Date.now());
 
-document.getElementById("today").innerText=today;
-document.getElementById("total").innerText=total;
+function resetDay(){
+  if(new Date(start).toDateString()!==new Date().toDateString()){
+    today=0;
+    start=Date.now();
+    localStorage.setItem("today",0);
+    localStorage.setItem("start",start);
+  }
+}
+resetDay();
 
-const tap=document.getElementById("tap");
+function update(){
+  document.getElementById("today").innerText=today;
+  document.getElementById("total").innerText=total;
+  document.getElementById("malas").innerText=Math.floor(total/MALA);
+  document.getElementById("count").innerText=today;
 
-function handle(e){
+  let deg=(today%MALA)/MALA*360;
+  document.querySelector(".circle").style.background=
+    `conic-gradient(#ff7a00 ${deg}deg,#e6e6e6 0deg)`;
+}
+update();
+
+/* JAP ACTION */
+function jap(x,y){
   today++; total++;
   localStorage.setItem("today",today);
   localStorage.setItem("total",total);
+  update();
 
-  document.getElementById("today").innerText=today;
-  document.getElementById("total").innerText=total;
-
-  const r=tap.getBoundingClientRect();
-  const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
-  const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
-
-  const d=document.createElement("div");
-  d.className="float";
-  d.innerText="राधा";
-  d.style.left=x+"px";
-  d.style.top=y+"px";
-  tap.appendChild(d);
-  setTimeout(()=>d.remove(),1200);
+  const r=document.createElement("div");
+  r.className="float";
+  r.innerText="राधा";
+  r.style.left=x+"px";
+  r.style.top=y+"px";
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(),1200);
 }
 
-tap.addEventListener("click",handle);
-tap.addEventListener("touchstart",handle,{passive:true});
+/* TAP / CLICK ANYWHERE */
+document.getElementById("tapArea").addEventListener("click",e=>{
+  jap(e.clientX,e.clientY);
+});
+
+/* TOUCH */
+document.getElementById("tapArea").addEventListener("touchstart",e=>{
+  const t=e.touches[0];
+  jap(t.clientX,t.clientY);
+},{passive:true});
+
+/* SPACE BAR */
+document.addEventListener("keydown",e=>{
+  if(e.code==="Space"){
+    e.preventDefault();
+    jap(window.innerWidth/2,window.innerHeight/2);
+  }
+});
+
+/* SILENT TIMER */
+setInterval(()=>{
+  let d=Math.floor((Date.now()-start)/1000);
+  let h=String(Math.floor(d/3600)).padStart(2,"0");
+  let m=String(Math.floor(d%3600/60)).padStart(2,"0");
+  let s=String(d%60).padStart(2,"0");
+  document.getElementById("timer").innerText=`⏱️ ${h}:${m}:${s}`;
+},1000);
 </script>
 
 </body>
