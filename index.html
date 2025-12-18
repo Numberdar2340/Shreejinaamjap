@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>राधा जप</title>
+
+<style>
+body{
+  margin:0;
+  font-family:system-ui;
+  background:#FFF4E6;
+}
+
+/* TOP BAR */
+.top{
+  background:#F4A261;
+  padding:12px;
+  text-align:center;
+  font-size:26px;
+  font-weight:800;
+  color:#5A2A00;
+}
+
+/* BIG RADHA BOX */
+.main-radha{
+  margin:12px;
+  background:#FFD2A6;
+  border-radius:14px;
+  text-align:center;
+  font-size:34px;
+  font-weight:900;
+  padding:18px;
+  color:#5A2A00;
+}
+
+/* STATS */
+.stats{
+  display:flex;
+  gap:10px;
+  padding:0 12px;
+}
+
+.card{
+  flex:1;
+  background:#FFD2A6;
+  border-radius:14px;
+  padding:10px;
+  text-align:center;
+  color:#5A2A00;
+  font-weight:700;
+}
+
+.card b{
+  font-size:22px;
+}
+
+/* TAP AREA */
+.tap-area{
+  margin-top:10px;
+  background:white;
+  height:calc(100vh - 300px);
+  position:relative;
+  overflow:hidden;
+}
+
+/* FLOATING RADHA */
+.float{
+  position:absolute;
+  font-size:26px;
+  font-weight:800;
+  color:#F4A261;
+  animation:up 1.2s ease-out forwards;
+  pointer-events:none;
+}
+
+@keyframes up{
+  from{opacity:0;transform:translateY(20px)}
+  20%{opacity:1}
+  to{opacity:0;transform:translateY(-140px)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="top">श्री जी नाम जप</div>
+
+<div class="main-radha">राधा</div>
+
+<div class="stats">
+  <div class="card">आज की गणना<br><b id="today">0</b></div>
+  <div class="card">आजिवन गिनती<br><b id="total">0</b></div>
+</div>
+
+<div class="tap-area" id="tap"></div>
+
+<script>
+let today = Number(localStorage.getItem("today")||0);
+let total = Number(localStorage.getItem("total")||0);
+
+document.getElementById("today").innerText=today;
+document.getElementById("total").innerText=total;
+
+const tap=document.getElementById("tap");
+
+function handle(e){
+  today++; total++;
+  localStorage.setItem("today",today);
+  localStorage.setItem("total",total);
+
+  document.getElementById("today").innerText=today;
+  document.getElementById("total").innerText=total;
+
+  const r=tap.getBoundingClientRect();
+  const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+  const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+
+  const d=document.createElement("div");
+  d.className="float";
+  d.innerText="राधा";
+  d.style.left=x+"px";
+  d.style.top=y+"px";
+  tap.appendChild(d);
+  setTimeout(()=>d.remove(),1200);
+}
+
+tap.addEventListener("click",handle);
+tap.addEventListener("touchstart",handle,{passive:true});
+</script>
+
+</body>
+</html>
