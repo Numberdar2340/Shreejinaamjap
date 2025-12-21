@@ -13,13 +13,7 @@ body{
   text-align:center;
   user-select:none;
 }
-
-h1{
-  color:#ff7a00;
-  margin-top:20px;
-}
-
-/* TIMER */
+h1{color:#ff7a00;margin-top:20px;}
 .timer{
   margin:10px auto;
   display:inline-block;
@@ -28,8 +22,6 @@ h1{
   background:#f1f1f1;
   font-weight:600;
 }
-
-/* NO ADS */
 .noads{
   margin-top:8px;
   display:inline-block;
@@ -39,68 +31,30 @@ h1{
   color:#1b7a3a;
   font-weight:600;
 }
-
-/* FULL TAP AREA */
-.tap-area{
-  min-height:100vh;
-}
-
-/* CIRCLE */
+.tap-area{min-height:100vh;}
 .circle{
-  width:220px;
-  height:220px;
-  margin:30px auto;
+  width:220px;height:220px;margin:30px auto;
   border-radius:50%;
   background:conic-gradient(#ff7a00 0deg,#e6e6e6 0deg);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  pointer-events:none; /* allow full screen tap */
-}
-
-.inner{
-  width:170px;
-  height:170px;
-  background:#fff;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:42px;
-  font-weight:800;
-}
-
-/* CARDS */
-.cards{
-  display:flex;
-  justify-content:center;
-  gap:12px;
-}
-
-.card{
-  width:110px;
-  padding:12px;
-  border-radius:14px;
-  background:#fff4e6;
-  border:1px solid #ffd2a6;
-}
-
-.card b{
-  display:block;
-  margin-top:4px;
-  font-size:18px;
-}
-
-/* FLOAT RADHA */
-.float{
-  position:absolute;
-  font-size:26px;
-  font-weight:800;
-  color:#ff7a00;
-  animation:up 1.2s ease-out forwards;
+  display:flex;align-items:center;justify-content:center;
   pointer-events:none;
 }
-
+.inner{
+  width:170px;height:170px;background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;font-weight:800;
+}
+.cards{display:flex;justify-content:center;gap:12px;}
+.card{
+  width:110px;padding:12px;border-radius:14px;
+  background:#fff4e6;border:1px solid #ffd2a6;
+}
+.card b{display:block;margin-top:4px;font-size:18px;}
+.float{
+  position:absolute;font-size:26px;font-weight:800;
+  color:#ff7a00;animation:up 1.2s ease-out forwards;
+  pointer-events:none;
+}
 @keyframes up{
   from{opacity:0;transform:translateY(20px)}
   20%{opacity:1}
@@ -110,7 +64,6 @@ h1{
 </head>
 
 <body>
-
 <div class="tap-area" id="tapArea">
 
 <h1>राधा नाम जप</h1>
@@ -127,33 +80,41 @@ h1{
   <div class="card">Total Japa<b id="total">0</b></div>
   <div class="card">Today's Japa<b id="today">0</b></div>
 </div>
-
 </div>
 
 <script>
-const MALA=108;
-let today=Number(localStorage.getItem("today")||0);
-let total=Number(localStorage.getItem("total")||0);
-let start=Number(localStorage.getItem("start")||Date.now());
+const MALA = 108;
+const DATE_KEY = "lastDate";
 
+/* LOAD */
+let today = Number(localStorage.getItem("today")) || 0;
+let total = Number(localStorage.getItem("total")) || 0;
+let start = Number(localStorage.getItem("start")) || Date.now();
+
+/* DAILY RESET (FIX) */
 function resetDay(){
-  if(new Date(start).toDateString()!==new Date().toDateString()){
-    today=0;
-    start=Date.now();
-    localStorage.setItem("today",0);
-    localStorage.setItem("start",start);
+  const todayDate = new Date().toDateString();
+  const savedDate = localStorage.getItem(DATE_KEY);
+
+  if(savedDate !== todayDate){
+    today = 0;
+    start = Date.now();
+    localStorage.setItem("today", 0);
+    localStorage.setItem("start", start);
+    localStorage.setItem(DATE_KEY, todayDate);
   }
 }
 resetDay();
 
+/* UPDATE UI */
 function update(){
-  document.getElementById("today").innerText=today;
-  document.getElementById("total").innerText=total;
-  document.getElementById("malas").innerText=Math.floor(total/MALA);
-  document.getElementById("count").innerText=today;
+  document.getElementById("today").innerText = today;
+  document.getElementById("total").innerText = total;
+  document.getElementById("malas").innerText = Math.floor(total / MALA);
+  document.getElementById("count").innerText = today;
 
-  let deg=(today%MALA)/MALA*360;
-  document.querySelector(".circle").style.background=
+  let deg = (today % MALA) / MALA * 360;
+  document.querySelector(".circle").style.background =
     `conic-gradient(#ff7a00 ${deg}deg,#e6e6e6 0deg)`;
 }
 update();
@@ -161,45 +122,41 @@ update();
 /* JAP ACTION */
 function jap(x,y){
   today++; total++;
-  localStorage.setItem("today",today);
-  localStorage.setItem("total",total);
+  localStorage.setItem("today", today);
+  localStorage.setItem("total", total);
   update();
 
-  const r=document.createElement("div");
-  r.className="float";
-  r.innerText="राधा";
-  r.style.left=x+"px";
-  r.style.top=y+"px";
+  const r = document.createElement("div");
+  r.className = "float";
+  r.innerText = "राधा";
+  r.style.left = x + "px";
+  r.style.top = y + "px";
   document.body.appendChild(r);
   setTimeout(()=>r.remove(),1200);
 }
 
-/* TAP / CLICK ANYWHERE */
+/* TAP EVENTS */
 document.getElementById("tapArea").addEventListener("click",e=>{
   jap(e.clientX,e.clientY);
 });
-
-/* TOUCH */
 document.getElementById("tapArea").addEventListener("touchstart",e=>{
-  const t=e.touches[0];
+  const t = e.touches[0];
   jap(t.clientX,t.clientY);
 },{passive:true});
-
-/* SPACE BAR */
 document.addEventListener("keydown",e=>{
   if(e.code==="Space"){
     e.preventDefault();
-    jap(window.innerWidth/2,window.innerHeight/2);
+    jap(innerWidth/2,innerHeight/2);
   }
 });
 
-/* SILENT TIMER */
+/* TIMER (DAILY RESET SAFE) */
 setInterval(()=>{
-  let d=Math.floor((Date.now()-start)/1000);
-  let h=String(Math.floor(d/3600)).padStart(2,"0");
-  let m=String(Math.floor(d%3600/60)).padStart(2,"0");
-  let s=String(d%60).padStart(2,"0");
-  document.getElementById("timer").innerText=`⏱️ ${h}:${m}:${s}`;
+  let d = Math.floor((Date.now() - start) / 1000);
+  let h = String(Math.floor(d / 3600)).padStart(2,"0");
+  let m = String(Math.floor(d % 3600 / 60)).padStart(2,"0");
+  let s = String(d % 60).padStart(2,"0");
+  document.getElementById("timer").innerText = `⏱️ ${h}:${m}:${s}`;
 },1000);
 </script>
 
