@@ -14,6 +14,12 @@ body{
   user-select:none;
 }
 h1{color:#ff7a00;margin-top:20px;}
+
+.apk-section{margin:10px 0;}
+.play-badge{width:190px;transition:0.3s;}
+.play-badge:hover{transform:scale(1.05);filter:drop-shadow(0 6px 14px rgba(0,0,0,0.35));}
+.apk-info{font-size:13px;color:#555;line-height:1.5;margin-top:6px;}
+
 .timer{
   margin:10px auto;
   display:inline-block;
@@ -68,6 +74,18 @@ h1{color:#ff7a00;margin-top:20px;}
 
 <h1>राधा नाम जप</h1>
 
+<!-- APK DOWNLOAD SECTION -->
+<div class="apk-section">
+  <a href="javascript:void(0)" onclick="downloadApk()">
+    <img class="play-badge"
+      src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg">
+  </a>
+  <div class="apk-info">
+    📢 <b>Play Store par Coming Soon</b><br>
+    ⬇️ Abhi <b>FREE APK Download</b> se install karein
+  </div>
+</div>
+
 <div class="timer" id="timer">⏱️ 00:00:00</div><br>
 <div class="noads">✅ No Ads</div>
 
@@ -76,9 +94,9 @@ h1{color:#ff7a00;margin-top:20px;}
 </div>
 
 <div class="cards">
-  <div class="card">Malas<b id="malas">0</b></div>
-  <div class="card">Total Japa<b id="total">0</b></div>
-  <div class="card">Today's Japa<b id="today">0</b></div>
+  <div class="card">Mala<b id="malas">0</b></div>
+  <div class="card">Total Jap<b id="total">0</b></div>
+  <div class="card">Today's Jap<b id="today">0</b></div>
 </div>
 </div>
 
@@ -91,73 +109,80 @@ let today = Number(localStorage.getItem("today")) || 0;
 let total = Number(localStorage.getItem("total")) || 0;
 let start = Number(localStorage.getItem("start")) || Date.now();
 
-/* DAILY RESET (FIX) */
+/* DAILY RESET */
 function resetDay(){
   const todayDate = new Date().toDateString();
-  const savedDate = localStorage.getItem(DATE_KEY);
-
-  if(savedDate !== todayDate){
+  if(localStorage.getItem(DATE_KEY) !== todayDate){
     today = 0;
     start = Date.now();
-    localStorage.setItem("today", 0);
-    localStorage.setItem("start", start);
-    localStorage.setItem(DATE_KEY, todayDate);
+    localStorage.setItem("today",0);
+    localStorage.setItem("start",start);
+    localStorage.setItem(DATE_KEY,todayDate);
   }
 }
 resetDay();
 
 /* UPDATE UI */
 function update(){
-  document.getElementById("today").innerText = today;
-  document.getElementById("total").innerText = total;
-  document.getElementById("malas").innerText = Math.floor(total / MALA);
-  document.getElementById("count").innerText = today;
+  document.getElementById("today").innerText=today;
+  document.getElementById("total").innerText=total;
+  document.getElementById("malas").innerText=Math.floor(total/MALA);
+  document.getElementById("count").innerText=today;
 
-  let deg = (today % MALA) / MALA * 360;
-  document.querySelector(".circle").style.background =
+  let deg=(today%MALA)/MALA*360;
+  document.querySelector(".circle").style.background=
     `conic-gradient(#ff7a00 ${deg}deg,#e6e6e6 0deg)`;
 }
 update();
 
-/* JAP ACTION */
+/* JAP */
 function jap(x,y){
   today++; total++;
-  localStorage.setItem("today", today);
-  localStorage.setItem("total", total);
+  localStorage.setItem("today",today);
+  localStorage.setItem("total",total);
   update();
 
-  const r = document.createElement("div");
-  r.className = "float";
-  r.innerText = "राधा";
-  r.style.left = x + "px";
-  r.style.top = y + "px";
+  const r=document.createElement("div");
+  r.className="float";
+  r.innerText="राधा";
+  r.style.left=x+"px";
+  r.style.top=y+"px";
   document.body.appendChild(r);
   setTimeout(()=>r.remove(),1200);
 }
 
-/* TAP EVENTS */
-document.getElementById("tapArea").addEventListener("click",e=>{
-  jap(e.clientX,e.clientY);
-});
-document.getElementById("tapArea").addEventListener("touchstart",e=>{
-  const t = e.touches[0];
+/* EVENTS */
+tapArea.addEventListener("click",e=>jap(e.clientX,e.clientY));
+tapArea.addEventListener("touchstart",e=>{
+  const t=e.touches[0];
   jap(t.clientX,t.clientY);
 },{passive:true});
 document.addEventListener("keydown",e=>{
-  if(e.code==="Space"){
-    e.preventDefault();
-    jap(innerWidth/2,innerHeight/2);
-  }
+  if(e.code==="Space"){e.preventDefault();jap(innerWidth/2,innerHeight/2);}
 });
 
-/* TIMER (DAILY RESET SAFE) */
+/* TIMER */
 setInterval(()=>{
-  let d = Math.floor((Date.now() - start) / 1000);
-  let h = String(Math.floor(d / 3600)).padStart(2,"0");
-  let m = String(Math.floor(d % 3600 / 60)).padStart(2,"0");
-  let s = String(d % 60).padStart(2,"0");
-  document.getElementById("timer").innerText = `⏱️ ${h}:${m}:${s}`;
+  let d=Math.floor((Date.now()-start)/1000);
+  let h=String(Math.floor(d/3600)).padStart(2,"0");
+  let m=String(Math.floor(d%3600/60)).padStart(2,"0");
+  let s=String(d%60).padStart(2,"0");
+  timer.innerText=`⏱️ ${h}:${m}:${s}`;
 },1000);
+
+/* APK NOTE POPUP */
+function downloadApk(){
+  if(confirm(
+    "📢 IMPORTANT NOTE\n\n" +
+    "Ye app abhi Play Store par available nahi hai.\n\n" +
+    "Install karne ke liye phone me:\n" +
+    "Settings → Security → Install unknown apps\n" +
+    "Allow karna padega.\n\n" +
+    "Kya aap APK download karna chahte hain?"
+  )){
+    window.location.href="app-release.apk"; // 🔗 yahan apni APK link daal sakte ho
+  }
+}
 </script>
 
 </body>
